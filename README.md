@@ -32,7 +32,7 @@ No package installation or build step is required. Google Fonts are loaded from 
 1. Open the Overview dashboard and point out the live summary cards and category breakdown.
 2. Select **Submit a request**. If signed out, open the account menu → **Sign in / Register**.
 3. Create a demo citizen account with any email you control and a password of at least six characters. Do not use a real/reused password.
-4. Submit a sample issue, optionally attach an image under 2 MB, and note the tracking ID shown in the success message.
+4. Submit a sample issue, optionally attach an image under 2 MB. The form clears and displays a success message with the tracking ID; use **Track request** to open its status.
 5. Open **Track a request** and paste the ID.
 6. Open the account menu → **Demo admin access**. The overview adds operational analytics; in Service requests, change a report's status. Dashboard totals and its dated status history update immediately.
 7. Try search and category/status filters.

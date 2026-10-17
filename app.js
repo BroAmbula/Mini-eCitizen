@@ -162,7 +162,9 @@
     };
     requests.push(request); write(STORAGE.requests, requests);
     form.reset(); $("#requestCounty").value = "Murang’a County"; pendingImage = ""; pendingImageName = ""; $("#imagePreview").classList.add("hidden");
-    refreshHeader(); setView("requests"); showToast(`Request submitted. Your tracking ID is ${request.id}.`); openDetails(request.id);
+    $("#submittedRequestId").textContent = request.id;
+    $("#requestSuccess").classList.remove("hidden");
+    refreshHeader(); showToast(`Request submitted. Your tracking ID is ${request.id}.`);
   }
   function openAuth(mode = "login") {
     authMode = mode; updateAuthMode(); $("#authError").classList.add("hidden"); $("#authModal").classList.remove("hidden"); $("#accountPopover").classList.add("hidden");
@@ -229,6 +231,11 @@
     if (statusControl) saveStatus(statusControl.dataset.statusId, statusControl.value);
   });
   $("#requestForm").addEventListener("submit", handleSubmitRequest);
+  $("#trackSubmittedRequest").addEventListener("click", () => {
+    $("#trackingId").value = $("#submittedRequestId").textContent;
+    setView("tracking");
+    $("#trackingForm").requestSubmit();
+  });
   $("#authForm").addEventListener("submit", handleAuth);
   $("#trackingForm").addEventListener("submit", handleTracking);
   ["requestSearch", "statusFilter", "categoryFilter"].forEach(id => $(`#${id}`).addEventListener(id === "requestSearch" ? "input" : "change", renderRequests));
