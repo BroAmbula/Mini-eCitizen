@@ -13,6 +13,7 @@ The visual palette follows Murang'a County's black, white, gold and green identi
 - Request detail view and tracking timeline
 - Demo admin mode with open-case, resolution-rate and urgent-queue analytics
 - Dated status history shown in request details and the tracking view
+- Admin status controls enforce the requested forward-only Pending → In Progress → Resolved lifecycle
 - Citizen views are limited to showcase records and that citizen's own requests
 - Admin CSV export for the visible request set, excluding contact details and protecting spreadsheet formula cells
 - Request creation and status updates report browser-storage failures without discarding unsaved form input

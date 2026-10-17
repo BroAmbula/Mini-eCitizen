@@ -18,6 +18,9 @@
   const escapeHTML = (value = "") => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const dateLabel = value => new Intl.DateTimeFormat("en-KE", { day: "numeric", month: "short", year: "numeric" }).format(new Date(value));
   const statusClass = status => status === "Resolved" ? "status-resolved" : status === "In Progress" ? "status-progress" : "status-pending";
+  const statusSteps = ["Pending", "In Progress", "Resolved"];
+  const nextStatus = status => statusSteps[statusSteps.indexOf(status) + 1] || null;
+  const statusOptions = status => [status, nextStatus(status)].filter(Boolean).map(option => `<option ${option === status ? "selected" : ""}>${option}</option>`).join("");
   const statusIcon = category => categoryMeta[category] || categoryMeta.Other;
   const read = key => { try { return JSON.parse(localStorage.getItem(key) || "null"); } catch { return null; } };
   const write = (key, value) => {
@@ -118,7 +121,7 @@
     $("#requestTable").innerHTML = filtered.map(r => {
       const meta = statusIcon(r.category);
       const statusControl = isAdmin()
-        ? `<select class="status-select" data-status-id="${escapeHTML(r.id)}" aria-label="Update status for ${escapeHTML(r.id)}"><option ${r.status === "Pending" ? "selected" : ""}>Pending</option><option ${r.status === "In Progress" ? "selected" : ""}>In Progress</option><option ${r.status === "Resolved" ? "selected" : ""}>Resolved</option></select>`
+        ? `<select class="status-select" data-status-id="${escapeHTML(r.id)}" aria-label="Advance status for ${escapeHTML(r.id)}">${statusOptions(r.status)}</select>`
         : `<span class="status-pill ${statusClass(r.status)}">${escapeHTML(r.status)}</span>`;
       return `<tr><td><div class="table-request"><div class="category-icon ${meta.className}">${meta.icon}</div><div><strong>${escapeHTML(r.title)}</strong><span>${escapeHTML(r.id)}</span></div></div></td><td>${escapeHTML(r.category)}</td><td>${escapeHTML(r.location)}</td><td class="table-date">${dateLabel(r.createdAt)}</td><td>${statusControl}</td><td><button class="table-action" data-detail-id="${escapeHTML(r.id)}">View details</button></td></tr>`;
     }).join("");
@@ -130,7 +133,7 @@
     if (!r) return;
     const meta = statusIcon(r.category);
     const history = [...(r.statusHistory || [])].reverse().map(entry => `<li><span class="history-dot"></span><div><strong>${escapeHTML(entry.status)}</strong><span>${dateLabel(entry.at)} · ${escapeHTML(entry.actor || "Service team")}</span></div></li>`).join("");
-    $("#detailContent").innerHTML = `<div class="detail-header"><div class="category-icon ${meta.className}">${meta.icon}</div><div><h2 id="detailTitle">${escapeHTML(r.title)}</h2><span class="request-id">${escapeHTML(r.id)} · Submitted ${dateLabel(r.createdAt)}</span></div></div><div style="margin-top:14px"><span class="status-pill ${statusClass(r.status)}">${escapeHTML(r.status)}</span></div><p class="detail-body">${escapeHTML(r.description)}</p><div class="detail-info-grid"><div><span>Category</span><strong>${escapeHTML(r.category)}</strong></div><div><span>Priority</span><strong>${escapeHTML(r.priority || "Normal")}</strong></div><div><span>Location</span><strong>${escapeHTML(r.location)}</strong></div><div><span>County / area</span><strong>${escapeHTML(r.county || "Not provided")}</strong></div></div><section class="status-history"><h3>Status history</h3><ol>${history}</ol></section>${r.image ? `<img class="detail-photo" src="${r.image}" alt="Photo attached to ${escapeHTML(r.id)}">` : ""}${isAdmin() ? `<div class="detail-admin"><label for="detailStatus">Update request status</label><select id="detailStatus" data-status-id="${escapeHTML(r.id)}"><option ${r.status === "Pending" ? "selected" : ""}>Pending</option><option ${r.status === "In Progress" ? "selected" : ""}>In Progress</option><option ${r.status === "Resolved" ? "selected" : ""}>Resolved</option></select></div>` : ""}`;
+    $("#detailContent").innerHTML = `<div class="detail-header"><div class="category-icon ${meta.className}">${meta.icon}</div><div><h2 id="detailTitle">${escapeHTML(r.title)}</h2><span class="request-id">${escapeHTML(r.id)} · Submitted ${dateLabel(r.createdAt)}</span></div></div><div style="margin-top:14px"><span class="status-pill ${statusClass(r.status)}">${escapeHTML(r.status)}</span></div><p class="detail-body">${escapeHTML(r.description)}</p><div class="detail-info-grid"><div><span>Category</span><strong>${escapeHTML(r.category)}</strong></div><div><span>Priority</span><strong>${escapeHTML(r.priority || "Normal")}</strong></div><div><span>Location</span><strong>${escapeHTML(r.location)}</strong></div><div><span>County / area</span><strong>${escapeHTML(r.county || "Not provided")}</strong></div></div><section class="status-history"><h3>Status history</h3><ol>${history}</ol></section>${r.image ? `<img class="detail-photo" src="${r.image}" alt="Photo attached to ${escapeHTML(r.id)}">` : ""}${isAdmin() ? `<div class="detail-admin"><label for="detailStatus">Advance request status</label><select id="detailStatus" data-status-id="${escapeHTML(r.id)}">${statusOptions(r.status)}</select></div>` : ""}`;
     $("#detailModal").classList.remove("hidden");
   }
   function closeModals() { $$(".modal-backdrop").forEach(m => m.classList.add("hidden")); }
@@ -138,6 +141,7 @@
     const r = requests.find(item => item.id === id);
     if (!r || !isAdmin()) return;
     if (r.status === status) return;
+    if (nextStatus(r.status) !== status) { showToast("Requests must move forward one status at a time.", true); renderRequests(); return; }
     if (!Array.isArray(r.statusHistory)) r.statusHistory = [];
     const updatedAt = new Date().toISOString();
     const updated = { ...r, status, updatedAt, statusHistory: [...r.statusHistory, { status, at: updatedAt, actor: session.name }] };
