@@ -14,6 +14,8 @@ The visual palette follows Murang'a County's black, white, gold and green identi
 - Demo admin mode with open-case, resolution-rate and urgent-queue analytics
 - Dated status history shown in request details and the tracking view
 - Citizen views are limited to showcase records and that citizen's own requests
+- Admin CSV export for the visible request set, excluding contact details and protecting spreadsheet formula cells
+- Request creation and status updates report browser-storage failures without discarding unsaved form input
 - Dashboard counts and category breakdown
 - Responsive desktop/mobile layout, form validation, accessible labels, toast feedback
 - Seeded sample reports so the dashboard looks alive during a presentation

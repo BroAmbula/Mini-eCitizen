@@ -20,7 +20,14 @@
   const statusClass = status => status === "Resolved" ? "status-resolved" : status === "In Progress" ? "status-progress" : "status-pending";
   const statusIcon = category => categoryMeta[category] || categoryMeta.Other;
   const read = key => { try { return JSON.parse(localStorage.getItem(key) || "null"); } catch { return null; } };
-  const write = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+  const write = (key, value) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
   const demoRequests = [
     { id: "HL-2026-0001", title: "Streetlight out near Kiharu Market", category: "Roads & Lighting", location: "Kiharu Market, main road", county: "Murang’a County", description: "The streetlight outside the market entrance has not been working for several nights. The road gets very dark after sunset.", priority: "High", status: "In Progress", createdAt: "2026-10-14T08:30:00.000Z", owner: "demo-citizen", contact: "", image: "" },
     { id: "HL-2026-0002", title: "Missed waste collection", category: "Waste Management", location: "Mumbi Estate, Block C", county: "Murang’a County", description: "Waste has not been collected at the shared collection point this week and bins are overflowing.", priority: "Normal", status: "Pending", createdAt: "2026-10-15T10:10:00.000Z", owner: "demo-citizen", contact: "", image: "" },
@@ -74,6 +81,7 @@
     $("#navCount").textContent = visibleRequests().length;
     $("#adminIndicator").classList.toggle("hidden", !isAdmin());
     $("#adminDashboard").classList.toggle("hidden", !isAdmin());
+    $("#exportRequests").classList.toggle("hidden", !isAdmin());
     renderOverview();
   }
   function renderOverview() {
@@ -131,10 +139,11 @@
     if (!r || !isAdmin()) return;
     if (r.status === status) return;
     if (!Array.isArray(r.statusHistory)) r.statusHistory = [];
-    r.status = status;
-    r.updatedAt = new Date().toISOString();
-    r.statusHistory.push({ status, at: r.updatedAt, actor: session.name });
-    write(STORAGE.requests, requests);
+    const updatedAt = new Date().toISOString();
+    const updated = { ...r, status, updatedAt, statusHistory: [...r.statusHistory, { status, at: updatedAt, actor: session.name }] };
+    const nextRequests = requests.map(item => item.id === id ? updated : item);
+    if (!write(STORAGE.requests, nextRequests)) { showToast("Could not save this update. Browser storage may be full.", true); return; }
+    requests = nextRequests;
     renderRequests(); renderOverview(); openDetails(id);
     showToast(`Request ${id} updated to ${status}.`);
   }
@@ -160,7 +169,12 @@
       owner: session.email, image: pendingImage,
       statusHistory: [{ status: "Pending", at: new Date().toISOString(), actor: session.name }]
     };
-    requests.push(request); write(STORAGE.requests, requests);
+    const nextRequests = [...requests, request];
+    if (!write(STORAGE.requests, nextRequests)) {
+      showToast(pendingImage ? "Could not save the report. Remove the photo or free browser storage, then try again." : "Could not save the report. Free browser storage, then try again.", true);
+      return;
+    }
+    requests = nextRequests;
     form.reset(); $("#requestCounty").value = "Murang’a County"; pendingImage = ""; pendingImageName = ""; $("#imagePreview").classList.add("hidden");
     $("#submittedRequestId").textContent = request.id;
     $("#requestSuccess").classList.remove("hidden");
@@ -209,6 +223,24 @@
     target.innerHTML = `<div class="detail-header"><div class="category-icon ${statusIcon(r.category).className}">${statusIcon(r.category).icon}</div><div><h3>${escapeHTML(r.title)}</h3><span class="tracking-id">${escapeHTML(r.id)} · Submitted ${dateLabel(r.createdAt)}</span></div></div><div style="margin-top:14px"><span class="status-pill ${statusClass(r.status)}">${escapeHTML(r.status)}</span></div><div class="tracking-progress">${steps.map((step,i) => `<div class="progress-step ${i <= current ? "done" : ""}"><strong>${escapeHTML(step)}</strong><span>${i < current ? "Completed" : i === current ? "Current status" : "Not started"}</span></div>`).join("")}</div><div class="tracking-detail-grid"><div><span>Category</span><strong>${escapeHTML(r.category)}</strong></div><div><span>Location</span><strong>${escapeHTML(r.location)}</strong></div><div><span>County / area</span><strong>${escapeHTML(r.county || "Not provided")}</strong></div><div><span>Priority</span><strong>${escapeHTML(r.priority || "Normal")}</strong></div></div><p class="detail-body">${escapeHTML(r.description)}</p><section class="status-history"><h3>Status history</h3><ol>${history}</ol></section>`;
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+  function exportRequests() {
+    if (!isAdmin()) return;
+    const columns = ["Request ID", "Title", "Category", "Location", "County / area", "Priority", "Status", "Date submitted", "Last updated"];
+    const csvValue = value => {
+      let text = String(value ?? "");
+      if (/^[\s]*[=+@\-\t\r]/.test(text)) text = `'${text}`;
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+    const rows = visibleRequests().map(request => [request.id, request.title, request.category, request.location, request.county, request.priority, request.status, request.createdAt, request.updatedAt || ""]);
+    const csv = `\uFEFF${[columns, ...rows].map(row => row.map(csvValue).join(",")).join("\r\n")}`;
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `hudumalink-requests-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast(`${rows.length} request${rows.length === 1 ? "" : "s"} exported. Contact details were excluded.`);
+  }
   function useDemoAdmin() {
     // Clearly disclosed demo role; production authorization must be enforced server-side.
     session = { name: "Service Administrator", email: "admin-demo@hudumalink.local", role: "admin" };
@@ -246,6 +278,7 @@
     else openAuth("login");
   });
   $("#demoAdmin").addEventListener("click", useDemoAdmin);
+  $("#exportRequests").addEventListener("click", exportRequests);
   $("#helpBtn").addEventListener("click", () => showToast("Sign in → submit a report → save your tracking ID → follow its status."));
   $("#notificationBtn").addEventListener("click", () => showToast("You're all caught up. Request updates appear in your service requests list."));
   $("#mobileMenu").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
