@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#176b3a">
+  <title>HudumaLink | Public Service Requests</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="HudumaLink home">
+        <span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 28 9.5v13L16 29 4 22.5v-13L16 3Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 16.5 14 20l8-9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span><strong>HudumaLink</strong><small>PUBLIC SERVICE PORTAL</small></span>
+      </a>
+      <div class="workspace-label">WORKSPACE</div>
+      <nav class="nav-menu" aria-label="Main navigation">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">▦</span> Overview</button>
+        <button class="nav-item" data-view="requests"><span class="nav-icon">▤</span> Service requests <span class="nav-count" id="navCount">0</span></button>
+        <button class="nav-item" data-view="new-request"><span class="nav-icon">＋</span> Submit a request</button>
+        <button class="nav-item" data-view="tracking"><span class="nav-icon">⌕</span> Track a request</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="help-card"><div class="help-icon">✦</div><strong>Need a hand?</strong><p>Find out how to submit and track a public service issue.</p><button id="helpBtn">How it works <span>↗</span></button></div>
+        <div class="sidebar-footer"><span class="online-dot"></span> Service portal operational <span class="version">v1.0</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Open navigation">☰</button>
+        <div class="breadcrumb"><span>Portal</span><span class="crumb-slash">/</span><strong id="crumbTitle">Overview</strong></div>
+        <div class="top-actions">
+          <button class="icon-button" id="notificationBtn" aria-label="Notifications">♧<i></i></button>
+          <div class="user-menu">
+            <div class="avatar" id="userAvatar">G</div>
+            <div class="user-meta"><strong id="userName">Guest Citizen</strong><span id="userRole">Citizen access</span></div>
+            <button class="chevron" id="accountBtn" aria-label="Account menu">⌄</button>
+          </div>
+          <div class="account-popover hidden" id="accountPopover"><button id="authAction">Sign in / Register</button><button id="demoAdmin">Demo admin access</button></div>
+        </div>
+      </header>
+
+      <section class="page active" id="view-overview">
+        <div class="welcome-row">
+          <div><div class="eyebrow"><span class="eyebrow-line"></span> YOUR COMMUNITY, YOUR VOICE</div><h1>Let’s make our community <span>better.</span></h1><p class="page-subtitle">Report an issue. Follow its progress. Help public services work better for everyone.</p></div>
+          <button class="button button-primary" data-go="new-request"><span>＋</span> Submit a request</button>
+        </div>
+        <div class="hero-banner">
+          <div class="hero-copy"><div class="hero-tag"><span class="sparkle">✦</span> COMMUNITY ACTION</div><h2>See something that needs fixing?</h2><p>From broken streetlights to missed waste collection, your report helps the right team take action.</p><button class="button button-light" data-go="new-request">Report an issue <span>→</span></button></div>
+          <div class="hero-art" aria-hidden="true"><div class="art-sun"></div><div class="art-circle"></div><div class="art-building b1"></div><div class="art-building b2"></div><div class="art-building b3"></div><div class="art-road"></div><div class="art-person">●<span></span></div><div class="art-pin">✓</div></div>
+        </div>
+        <div class="section-heading"><div><h2>Service overview</h2><p>A live snapshot of community reports.</p></div><span class="updated-label"><span class="online-dot"></span> Updated just now</span></div>
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>Total requests</span><span class="stat-icon purple">▤</span></div><div class="stat-value" id="statTotal">0</div><div class="stat-foot">All reports submitted</div><div class="stat-mini purple-line"></div></article>
+          <article class="stat-card"><div class="stat-top"><span>Awaiting action</span><span class="stat-icon amber">◷</span></div><div class="stat-value" id="statPending">0</div><div class="stat-foot">Pending review</div><div class="stat-mini amber-line"></div></article>
+          <article class="stat-card"><div class="stat-top"><span>In progress</span><span class="stat-icon blue">↗</span></div><div class="stat-value" id="statProgress">0</div><div class="stat-foot">Being worked on</div><div class="stat-mini blue-line"></div></article>
+          <article class="stat-card"><div class="stat-top"><span>Resolved</span><span class="stat-icon green">✓</span></div><div class="stat-value" id="statResolved">0</div><div class="stat-foot">Issues addressed</div><div class="stat-mini green-line"></div></article>
+        </div>
+        <section class="admin-dashboard hidden" id="adminDashboard" aria-label="Administrator analytics">
+          <div><span class="admin-kicker">OPERATIONS</span><strong><span id="adminOpen">0</span> open</strong><span>Pending or in progress</span></div>
+          <div><span class="admin-kicker">RESOLUTION RATE</span><strong><span id="adminResolution">0</span>%</strong><span>Requests resolved</span></div>
+          <div><span class="admin-kicker">URGENT QUEUE</span><strong><span id="adminUrgent">0</span></strong><span>Urgent requests still open</span></div>
+          <button class="button button-primary button-small" data-go="requests">Manage requests <span>→</span></button>
+        </section>
+        <div class="content-grid">
+          <section class="panel recent-panel"><div class="panel-heading"><div><h3>Recent service requests</h3><p>Keep an eye on the latest reports.</p></div><button class="text-button" data-go="requests">View all <span>→</span></button></div><div id="recentRequests" class="request-list"></div><div id="recentEmpty" class="empty-state hidden"><div class="empty-symbol">▤</div><strong>No requests yet</strong><p>Be the first to report an issue in your community.</p><button class="button button-primary button-small" data-go="new-request">Submit first request</button></div></section>
+          <section class="panel category-panel"><div class="panel-heading"><div><h3>Reports by category</h3><p>What your community is reporting.</p></div><span class="tiny-badge">OVERVIEW</span></div><div class="category-chart" id="categoryChart"></div><div class="chart-legend"><span><i class="legend-dot dot-green"></i> Requests</span><span><i class="legend-dot dot-grey"></i> Other categories</span></div><div class="impact-note"><span class="impact-icon">✦</span><div><strong>Every report counts</strong><p>Clear details help service teams respond faster.</p></div></div></section>
+        </div>
+        <footer class="page-footer"><span>© 2026 HudumaLink Public Service Portal</span><span>Built for transparent, responsive public service <b>♥</b></span></footer>
+      </section>
+
+      <section class="page" id="view-requests">
+        <div class="page-title-row"><div><div class="eyebrow"><span class="eyebrow-line"></span> COMMUNITY REPORTS</div><h1>Service requests</h1><p class="page-subtitle">Browse reports and follow the progress of each issue.</p></div><button class="button button-primary" data-go="new-request">＋ New request</button></div>
+        <div class="filter-bar"><div class="search-field"><span>⌕</span><input id="requestSearch" placeholder="Search by ID, title or location…" aria-label="Search requests"></div><select id="statusFilter" aria-label="Filter by status"><option value="all">All statuses</option><option>Pending</option><option>In Progress</option><option>Resolved</option></select><select id="categoryFilter" aria-label="Filter by category"><option value="all">All categories</option><option>Roads & Lighting</option><option>Water & Sanitation</option><option>Waste Management</option><option>Public Safety</option><option>Other</option></select></div>
+        <div class="panel table-panel"><div class="table-summary"><strong id="requestCountLabel">All requests</strong><span id="adminIndicator" class="admin-only hidden">ADMIN MODE · Status controls enabled</span></div><div class="table-wrap"><table><thead><tr><th>REQUEST</th><th>CATEGORY</th><th>LOCATION</th><th>DATE SUBMITTED</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="requestTable"></tbody></table></div><div id="tableEmpty" class="empty-state hidden"><div class="empty-symbol">⌕</div><strong>No matching requests</strong><p>Try changing your search or filters.</p></div></div>
+        <footer class="page-footer"><span>© 2026 HudumaLink Public Service Portal</span><span>Transparency starts with visibility <b>♥</b></span></footer>
+      </section>
+
+      <section class="page" id="view-new-request">
+        <div class="page-title-row"><div><div class="eyebrow"><span class="eyebrow-line"></span> TAKE ACTION</div><h1>Submit a request</h1><p class="page-subtitle">Tell us what needs attention. We'll help get it to the right team.</p></div><div class="secure-note"><span>♧</span> Your report matters</div></div>
+        <div class="form-layout"><form id="requestForm" class="panel request-form">
+          <div class="form-section-heading"><span class="step-number">01</span><div><h3>Issue details</h3><p>Describe the service issue as clearly as you can.</p></div></div>
+          <label for="requestTitle">Request title <span class="required">*</span></label><input id="requestTitle" name="title" required maxlength="90" placeholder="e.g. Streetlight not working near the market">
+          <div class="form-row"><div class="field"><label for="requestCategory">Service category <span class="required">*</span></label><select id="requestCategory" name="category" required><option value="">Select a category</option><option>Roads & Lighting</option><option>Water & Sanitation</option><option>Waste Management</option><option>Public Safety</option><option>Other</option></select></div><div class="field"><label for="requestUrgency">Priority</label><select id="requestUrgency" name="priority"><option>Normal</option><option>High</option><option>Urgent</option></select></div></div>
+          <label for="requestDescription">Description <span class="required">*</span></label><textarea id="requestDescription" name="description" required minlength="15" maxlength="1200" rows="5" placeholder="What happened? When did you first notice it? Include useful details…"></textarea><div class="field-hint">At least 15 characters. Avoid including sensitive personal information.</div>
+          <div class="form-section-heading location-heading"><span class="step-number">02</span><div><h3>Where is the issue?</h3><p>A clear location helps teams find it quickly.</p></div></div>
+          <label for="requestLocation">Location / landmark <span class="required">*</span></label><input id="requestLocation" name="location" required maxlength="160" placeholder="e.g. Near Kiharu market, along the main road">
+          <div class="form-row"><div class="field"><label for="requestCounty">County / area</label><input id="requestCounty" name="county" value="Murang’a County" maxlength="80"></div><div class="field"><label for="requestContact">Contact (optional)</label><input id="requestContact" name="contact" maxlength="100" placeholder="Phone or email"></div></div>
+          <label>Attach a photo <span class="optional">(optional)</span></label><label class="upload-zone" for="requestImage"><span class="upload-icon">↑</span><strong>Click to upload a photo</strong><span>PNG, JPG or WEBP · Max 2 MB</span><input type="file" id="requestImage" accept="image/png,image/jpeg,image/webp" hidden></label><div id="imagePreview" class="image-preview hidden"></div>
+          <div class="privacy-note"><span>♧</span><p>Submit only information needed to address this issue. In this demo, reports are saved in this browser on this device.</p></div>
+          <div class="form-actions"><button type="button" class="button button-secondary" data-go="overview">Cancel</button><button class="button button-primary" type="submit">Submit request <span>→</span></button></div>
+        </form><aside class="form-aside"><div class="aside-card aside-green"><div class="aside-illustration">✦</div><h3>Good reports get results.</h3><p>Help service teams act faster by including a specific location and a clear description.</p><div class="aside-check">✓ <span>Be clear and specific</span></div><div class="aside-check">✓ <span>Include nearby landmarks</span></div><div class="aside-check">✓ <span>Add a photo if useful</span></div></div><div class="aside-card"><div class="aside-mini-icon">↗</div><h3>What happens next?</h3><ol class="steps-list"><li><span>1</span><div><strong>We log your report</strong><p>You receive a tracking ID.</p></div></li><li><span>2</span><div><strong>It gets reviewed</strong><p>The team assesses the issue.</p></div></li><li><span>3</span><div><strong>Progress is updated</strong><p>Track it from your dashboard.</p></div></li></ol></div></aside></div>
+        <footer class="page-footer"><span>© 2026 HudumaLink Public Service Portal</span><span>Public service, made more accessible <b>♥</b></span></footer>
+      </section>
+
+      <section class="page" id="view-tracking">
+        <div class="page-title-row"><div><div class="eyebrow"><span class="eyebrow-line"></span> STAY INFORMED</div><h1>Track a request</h1><p class="page-subtitle">Enter your request ID to see its latest status and details.</p></div></div>
+        <div class="tracking-search panel"><div class="tracking-icon">⌕</div><div class="tracking-search-copy"><h3>Where does your request stand?</h3><p>Your tracking ID looks like <strong>HL-2026-0001</strong>.</p></div><form id="trackingForm"><input id="trackingId" placeholder="Enter request ID" aria-label="Request tracking ID" required><button class="button button-primary" type="submit">Track request →</button></form></div>
+        <div id="trackingResult" class="panel tracking-result hidden"></div>
+        <div class="tracking-help"><span class="help-circle">i</span><div><strong>Can't find your tracking ID?</strong><p>It is shown after you submit a report. Sign in on the same browser you used to submit it to view your local demo records.</p></div></div>
+        <footer class="page-footer"><span>© 2026 HudumaLink Public Service Portal</span><span>Know the status. See the progress. <b>♥</b></span></footer>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="authModal"><div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle"><button class="modal-close" data-close-modal aria-label="Close">×</button><div class="modal-brand"><span class="brand-mark"><svg viewBox="0 0 32 32"><path d="M16 3 28 9.5v13L16 29 4 22.5v-13L16 3Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 16.5 14 20l8-9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div><h2 id="authTitle">Welcome to HudumaLink</h2><p class="modal-subtitle">Sign in or create an account to manage your reports.</p><div class="auth-tabs"><button class="auth-tab active" data-auth-tab="login">Sign in</button><button class="auth-tab" data-auth-tab="register">Create account</button></div><form id="authForm"><div id="registerFields" class="hidden"><label for="authName">Full name</label><input id="authName" autocomplete="name" placeholder="Your full name"></div><label for="authEmail">Email address</label><input id="authEmail" type="email" required autocomplete="email" placeholder="you@example.com"><label for="authPassword">Password</label><input id="authPassword" type="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"><div id="authError" class="form-error hidden"></div><button class="button button-primary auth-submit" type="submit">Sign in <span>→</span></button></form><div class="auth-footnote">Demo version · Do not use a real password</div></div></div>
+  <div class="modal-backdrop hidden" id="detailModal"><div class="modal detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><button class="modal-close" data-close-modal aria-label="Close">×</button><div id="detailContent"></div></div></div>
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
